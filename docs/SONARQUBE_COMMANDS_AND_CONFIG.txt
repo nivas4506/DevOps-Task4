@@ -1,0 +1,136 @@
+===============================================================================
+  DEV-OPS TASK 4: SONARQUBE STATIC CODE ANALYSIS - COMMANDS & CONFIGURATION NOTES
+===============================================================================
+
+1. OVERVIEW & SETUP ARCHITECTURE
+-------------------------------------------------------------------------------
+This project performs static code analysis on a Java application using 
+SonarQube Community Edition (v9.9.8 LTS) and SonarScanner / Maven.
+
+Environment Details:
+- Operating System: Windows 11 (x64)
+- JDK Version: Eclipse Adoptium OpenJDK 17 (17.0.16.8)
+- Maven Version: Apache Maven 3.9.9
+- SonarQube Version: SonarQube 9.9.8 LTS Community Edition
+- SonarScanner Version: SonarScanner 5.0.1.3006
+- SonarQube Server URL: http://localhost:9000
+- Default Server Credentials: admin / admin
+
+
+2. ALL TERMINAL COMMANDS USED
+-------------------------------------------------------------------------------
+
+[Environment Check Commands]
+# Check available Java, javac, Docker, Maven, winget, choco
+powershell -Command "Get-Command java, javac, mvn, docker, sonar-scanner -ErrorAction SilentlyContinue"
+powershell -Command "java -version; javac -version"
+powershell -Command "[Environment]::GetEnvironmentVariable('JAVA_HOME', 'Machine')"
+
+[Download & Setup Commands]
+# Download and extract Apache Maven 3.9.9
+powershell -Command "Invoke-WebRequest -Uri 'https://archive.apache.org/dist/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.zip' -OutFile 'maven.zip'; Expand-Archive -Path 'maven.zip' -DestinationPath '.'; Remove-Item 'maven.zip'"
+
+# Download and extract SonarScanner CLI 5.0.1
+powershell -Command "Invoke-WebRequest -Uri 'https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-windows.zip' -OutFile 'sonar-scanner.zip'; Expand-Archive -Path 'sonar-scanner.zip' -DestinationPath '.'; Remove-Item 'sonar-scanner.zip'"
+
+# Download and extract SonarQube 9.9.8 LTS Community Edition
+powershell -Command "Invoke-WebRequest -Uri 'https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-9.9.8.100196.zip' -OutFile 'sonarqube.zip'; Expand-Archive -Path 'sonarqube.zip' -DestinationPath '.'; Remove-Item 'sonarqube.zip'"
+
+[Compilation & Build Commands]
+# Compile Java Application with Maven
+.\apache-maven-3.9.9\bin\mvn.cmd compile
+
+[SonarQube Server Startup Commands]
+# Start SonarQube Server with JDK 17 Environment
+start-sonar-jdk17.bat
+
+# Check SonarQube Server Status API
+powershell -Command "Invoke-RestMethod -Uri 'http://localhost:9000/api/system/status'"
+
+[Static Code Analysis Execution Commands]
+# Execute Static Analysis via Maven Sonar Plugin
+.\apache-maven-3.9.9\bin\mvn.cmd sonar:sonar "-Dsonar.host.url=http://localhost:9000" "-Dsonar.login=admin" "-Dsonar.password=admin"
+
+# Execute Static Analysis via SonarScanner CLI
+.\sonar-scanner-5.0.1.3006-windows\bin\sonar-scanner.bat "-Dsonar.host.url=http://localhost:9000" "-Dsonar.login=admin" "-Dsonar.password=admin"
+
+[REST API Results Query Commands]
+# Fetch Issues and Measures via REST API
+powershell -ExecutionPolicy Bypass -File "get_sonar_results.ps1"
+
+
+3. CONFIGURATION FILES & CODE SNIPPETS
+-------------------------------------------------------------------------------
+
+A. pom.xml (Maven Configuration)
+----------------------------------
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>java-sonarqube-demo</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <sonar.projectKey>java-sonarqube-demo</sonar.projectKey>
+        <sonar.projectName>Java Static Code Analysis Demo</sonar.projectName>
+    </properties>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>3.10.0.2594</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+
+
+B. sonar-project.properties (SonarScanner Configuration)
+---------------------------------------------------------
+sonar.projectKey=java-sonarqube-demo
+sonar.projectName=Java Static Code Analysis Demo
+sonar.projectVersion=1.0
+sonar.sources=src/main/java
+sonar.java.binaries=target/classes
+sonar.sourceEncoding=UTF-8
+
+
+C. sonarqube-9.9.8.100196/conf/sonar.properties
+-------------------------------------------------
+sonar.java.path=C:/Program Files/Eclipse Adoptium/jdk-17.0.16.8-hotspot/bin/java.exe
+
+
+D. start-sonar-jdk17.bat (SonarQube Launch Helper Script)
+----------------------------------------------------------
+@echo off
+set "JAVA_HOME=C:\Program Files\Eclipse Adoptium\jdk-17.0.16.8-hotspot"
+set "SONAR_JAVA_PATH=C:\Program Files\Eclipse Adoptium\jdk-17.0.16.8-hotspot\bin\java.exe"
+set "PATH=C:\Program Files\Eclipse Adoptium\jdk-17.0.16.8-hotspot\bin;%PATH%"
+
+if exist ".\sonarqube-9.9.8.100196\temp" (
+    rmdir /s /q ".\sonarqube-9.9.8.100196\temp"
+)
+
+call ".\sonarqube-9.9.8.100196\bin\windows-x86-64\StartSonar.bat"
+
+
+4. ANALYSIS SUMMARY & FINDINGS
+-------------------------------------------------------------------------------
+- Total Lines of Code (NCLOC): 156
+- Total Bugs Identified: 5 (1 Blocker Resource Leak, 4 Major String == Comparisons)
+- Total Code Smells Identified: 27 (High Cognitive Complexity, System.out logging, Dead code)
+- Security Hotspots: 1 (Hardcoded credentials & weak Random generator)
+- Technical Debt Estimate (Sqale Index): 205 minutes (~3.4 hours)
+- Reliability Rating: E (5.0)
+
+===============================================================================

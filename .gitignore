@@ -1,0 +1,25 @@
+# Maven Build Artifacts
+target/
+*.class
+
+# Sonar Scanner / Server Work Directories & Distributions
+.scannerwork/
+tools/
+sonarqube-*/
+*.zip
+*.log
+*.tmp
+temp/
+
+# IDE Configuration
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+
+# OS Generated Files
+Thumbs.db
+Desktop.ini
+.DS_Store
