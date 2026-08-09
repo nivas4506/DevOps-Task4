@@ -5,8 +5,9 @@ set "PATH=C:\Program Files\Eclipse Adoptium\jdk-17.0.16.8-hotspot\bin;%PATH%"
 
 cd /d "%~dp0.."
 
-if exist ".\sonarqube-9.9.8.100196\bin\windows-x86-64\StartSonar.bat" (
-    call ".\sonarqube-9.9.8.100196\bin\windows-x86-64\StartSonar.bat"
-) else if exist ".\tools\sonarqube-9.9.8.100196\bin\windows-x86-64\StartSonar.bat" (
-    call ".\tools\sonarqube-9.9.8.100196\bin\windows-x86-64\StartSonar.bat"
+if exist ".\tools\sonarqube-10.7.0.96327\temp" (
+    rmdir /s /q ".\tools\sonarqube-10.7.0.96327\temp"
 )
+
+echo Starting SonarQube Server 10.7 (Latest Release) with JDK 17...
+call ".\tools\sonarqube-10.7.0.96327\bin\windows-x86-64\StartSonar.bat"

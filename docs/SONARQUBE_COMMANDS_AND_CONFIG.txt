@@ -5,13 +5,13 @@
 1. OVERVIEW & SETUP ARCHITECTURE
 -------------------------------------------------------------------------------
 This project performs static code analysis on a Java application using 
-SonarQube Community Edition (v9.9.8 LTS) and SonarScanner / Maven.
+SonarQube Community Edition (v10.7 Latest Release) and SonarScanner / Maven.
 
 Environment Details:
 - Operating System: Windows 11 (x64)
 - JDK Version: Eclipse Adoptium OpenJDK 17 (17.0.16.8)
 - Maven Version: Apache Maven 3.9.9
-- SonarQube Version: SonarQube 9.9.8 LTS Community Edition
+- SonarQube Version: SonarQube 10.7.0.96327 (Latest Community Release)
 - SonarScanner Version: SonarScanner 5.0.1.3006
 - SonarQube Server URL: http://localhost:9000
 - Default Server Credentials: admin / admin
